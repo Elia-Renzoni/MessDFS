@@ -7,5 +7,5 @@ import (
 type DeletePayload struct {
 	User string
 	FileName string 
-	Url url.Values
+	Query url.Values
 }
