@@ -2,8 +2,10 @@ package main
 
 import (
 	"net/http"
+	"storage/storage"
 )
 
 func main() {
-	mux := http.NewServerMux()
+	storageService := storage.NewStorage(":8081")
+	storageService.Start()
 }
