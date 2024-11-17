@@ -3,8 +3,8 @@ package internal
 import (
 	"net"
 	"net/http"
-	"storage/middleware"
-	"storage/model"
+	"storageservice/internal/middleware"
+	"storageservice/model"
 	"encoding/json"
 	"io"
 	"os"

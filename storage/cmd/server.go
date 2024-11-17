@@ -2,10 +2,10 @@ package main
 
 import (
 	"net/http"
-	"storage/storage"
+	ss "storageservice/internal"
 )
 
 func main() {
-	storageService := storage.NewStorage(":8081")
+	storageService := ss.NewStorage(":8081")
 	storageService.Start()
 }
