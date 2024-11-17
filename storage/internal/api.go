@@ -14,15 +14,15 @@ import (
 type MessDFSStorageAPI struct {
 	address string
 	jwtMiddleware *Middleware
-	effectiveOperations ResourceController
+	ResourceController
 
 	createDir CreateDirPayload
 	deleteDir DeleteDirPayload
 	deleteFile DeleteFilePayload
-	deleteCSVContent DeletePayload
-	insertCSVContent InsertPayload
-	readCSVContent ReadPayload
-	updateCSVContent UpdatePayload
+	delete DeletePayload
+	insert InsertPayload
+	read ReadPayload
+	update UpdatePayload
 }
 
 func NewStorage(address string) *MessDFSStorageAPI {
@@ -50,14 +50,10 @@ func (m *MessDFSStorageAPI) Start() {
 func (m *MessDFSStorageAPI) insert(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	body, _ := io.ReadAll(r.Body)
-	json.Unmarshal(body, m.insertCSVContent)
+	json.Unmarshal(body, m.insert)
 
-	if err := m.effectiveOperations.WriteRemoteCSV(m.insertCSVContent.User, 
-												   m.insertCSVContent.FileName, 
-												   m.insertCSVContent.QueryType, 
-												   m.insertCSVContent.QueryContent); err != nil {
+	if err := m.WriteRemoteCSV(m.insert.User, m.insert.FileName, m.insert.QueryType, m.insert.QueryContent); err != nil {
 		http.Error(w, err.Error(), 500)
-
 	} else {
 		message := map[string]string{
 			"success": "Informations Added Succesfully",
@@ -71,13 +67,11 @@ func (m *MessDFSStorageAPI) delete(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path
 	splittedPath := strings.Split("/")
 
-	m.deleteCSVContent.User = splittedPath[2]
-	m.deleteCSVContent.FileName = splittedPath[3]
-	m.deleteCSVContent.Query = r.URL.Query()
+	m.delete.User = splittedPath[2]
+	m.delete.FileName = splittedPath[3]
+	m.delete.Query = r.URL.Query()
 
-	if err := m.effectiveOperations.DeleteRemoteCSV(m.deleteCSVContent.User, 
-													m.deleteCSVContent.FileName, 
-													m.deleteCSVContent.Query); err != nil {
+	if err := m.DeleteRemoteCSV(m.delete.User, m.delete.FileName, m.delete.Query); err != nil {
 		http.Error(w, err.Error(), 500)
 	} else {
 		message := map[string]string{
@@ -89,18 +83,27 @@ func (m *MessDFSStorageAPI) delete(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *MessDFSStorageAPI) read(w http.ResponseWriter, r *http.Request) {
+	path := r.URL.Path
+	splittedPath := strings.Split(path, "/")
 
+	m.read.User = splittedPath[2]
+	m.read.FileName = splittedPath[3]
+	m.read.Query = r.URL.Query()
+
+	response, err := m.ReadInRemoteCSV(m.read.User, m.read.FileName, "read", m.read.Query)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+	} else {
+		writer(w, response)
+	}
 }
 
 func (m *MessDFSStorageAPI) update(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	body, _ := io.ReadAll(r.Body)
-	json.Unmarshal(body, m.updateCSVContent)
+	json.Unmarshal(body, m.update)
 
-	if err := m.effectiveOperations.UpdateRemoteCSV(m.updateCSVContent.User, 
-													m.updateCSVContent.FileName, 
-													m.updateCSVContent.QueryType, 
-													m.updateCSVContent.QueryContent); err != nil {
+	if err := m.UpdateRemoteCSV(m.update.User, m.update.FileName, m.update.QueryType, m.update.QueryContent); err != nil {
 		http.Error(w, err.Error(), 500)
 	} else {
 		message := map[string]string{
@@ -116,7 +119,7 @@ func (m *MessDFSStorageAPI) createDirectory(w http.ResponseWriter, r *http.Reque
 	body, _ := io.ReadAll(r.Body)
 	json.Unmarshal(body, m.createDir)
 
-	if err := m.effectiveOperations.CreateNewDir(m.createDir.DirToCreate); err != nil {
+	if err := m.CreateNewDir(m.createDir.DirToCreate); err != nil {
 		http.Error(w, err.Error(), 500)
 	} else {
 		message := map[string]string{
@@ -128,11 +131,36 @@ func (m *MessDFSStorageAPI) createDirectory(w http.ResponseWriter, r *http.Reque
 }
 
 func (m *MessDFSStorageAPI) deleteDirectory(w http.ResponseWriter, r *http.Request) {
+	path := r.URL.Path
+	splittedPath := strings.Split(path, "/")
+	m.deleteDir.DirToDelete = splittedPath[2]
 
+	if err := m.DeleteDir(m.deleteDir.DirToDelete); err != nil {
+		http.Error(w, err.Error(), 500)
+	} else {
+		message := map[string]string{
+			"success": "Directory Succesfully Deleted",
+		}
+
+		writer(w, message)
+	}
 }
 
 func (m *MessDFSStorageAPI) deleteFile(w http.ResponseWriter, r *http.Request) {
+	path := r.URL.Path
+	splittedPath := strings.Split(path, "/")
+	m.deleteFile.DirName = splittedPath[2]
+	m.deleteFile.FileToDelete = splittedPath[3]
 
+	if err := m.DeleteFile(m.deleteFile.DirName, m.deleteFile.FileToDelete); err != nil {
+		http.Error(w, err.Error(), 500)
+	} else {
+		message := map[string]string{
+			"success": "File Succesfully Deleted",
+		}
+
+		writer(w, message)
+	}
 }
 
 func wirter(w http.ResponseWriter, data map[string]string) {

@@ -8,5 +8,5 @@ import (
 type ReadPayload struct {
 	User string
 	FileName string
-	url url.Values
+	Query url.Values
 }
