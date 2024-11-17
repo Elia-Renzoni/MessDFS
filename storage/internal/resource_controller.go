@@ -404,7 +404,7 @@ func changeToMainDirectory() error {
 	splitted := strings.Split(path, "/")
 	mainDir = splitted[1]
 
-	if err := os.Chdir(main); err != nil {
+	if err := os.Chdir(mainDir); err != nil {
 		return err
 	}
 	return nil

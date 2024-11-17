@@ -1,53 +1,54 @@
 package internal
 
 import (
-	"net"
 	"net/http"
 	"storageservice/internal/middleware"
 	"storageservice/model"
 	"encoding/json"
 	"io"
-	"os"
 	"strings"
+	"fmt"
 )
 
 type MessDFSStorageAPI struct {
 	address string
-	jwtMiddleware *Middleware
+	jwtMiddleware *middleware.Middleware
 	ResourceController
 
-	createDir CreateDirPayload
-	deleteDir DeleteDirPayload
-	deleteFile DeleteFilePayload
-	delete DeletePayload
-	insert InsertPayload
-	read ReadPayload
-	update UpdatePayload
+	createDir model.CreateDirPayload
+	deleteDir model.DeleteDirPayload
+	deleteF model.DeleteFilePayload
+	delete model.DeletePayload
+	insert model.InsertPayload
+	read model.ReadPayload
+	update model.UpdatePayload
 }
 
 func NewStorage(address string) *MessDFSStorageAPI {
 	return &MessDFSStorageAPI{
 		address: address,
-		jwtMiddleware: NewMiddleware(),
+		jwtMiddleware: middleware.NewMiddleware(),
 	}
 }
 
 func (m *MessDFSStorageAPI) Start() {
-	mux := http.NewServerMux()
+	mux := http.NewServeMux()
 
-	mux.HandleFunc("POST /csvi", m.insert)
-	mux.HandleFunc("UPDATE /csvu", m.update)
-	mux.HandleFunc("DELETE /csvd/", m.delete)
-	mux.HandleFunc("READ /csvr/", m.delete)
+	fmt.Printf("Server Listening...")
+
+	mux.HandleFunc("POST /csvi", m.insertCSV)
+	mux.HandleFunc("UPDATE /csvu", m.updateCSV)
+	mux.HandleFunc("DELETE /csvd/", m.deleteCSV)
+	mux.HandleFunc("READ /csvr/", m.readCSV)
 	mux.HandleFunc("POST /ndir", m.createDirectory)
 	mux.HandleFunc("DELETE /ddir/", m.deleteDirectory)
 	mux.HandleFunc("DELETE /dfile/", m.deleteFile)
 
-	http.ListenAndServe(address, nil)
+	http.ListenAndServe(m.address, nil)
 }
 
 
-func (m *MessDFSStorageAPI) insert(w http.ResponseWriter, r *http.Request) {
+func (m *MessDFSStorageAPI) insertCSV(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	body, _ := io.ReadAll(r.Body)
 	json.Unmarshal(body, m.insert)
@@ -63,15 +64,15 @@ func (m *MessDFSStorageAPI) insert(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (m *MessDFSStorageAPI) delete(w http.ResponseWriter, r *http.Request) {
+func (m *MessDFSStorageAPI) deleteCSV(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path
-	splittedPath := strings.Split("/")
+	splittedPath := strings.Split(path, "/")
 
 	m.delete.User = splittedPath[2]
 	m.delete.FileName = splittedPath[3]
 	m.delete.Query = r.URL.Query()
 
-	if err := m.DeleteRemoteCSV(m.delete.User, m.delete.FileName, m.delete.Query); err != nil {
+	if err := m.DeleteRemoteCSV(m.delete.User, m.delete.FileName, "delete", m.delete.Query); err != nil {
 		http.Error(w, err.Error(), 500)
 	} else {
 		message := map[string]string{
@@ -82,7 +83,7 @@ func (m *MessDFSStorageAPI) delete(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (m *MessDFSStorageAPI) read(w http.ResponseWriter, r *http.Request) {
+func (m *MessDFSStorageAPI) readCSV(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path
 	splittedPath := strings.Split(path, "/")
 
@@ -98,7 +99,7 @@ func (m *MessDFSStorageAPI) read(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (m *MessDFSStorageAPI) update(w http.ResponseWriter, r *http.Request) {
+func (m *MessDFSStorageAPI) updateCSV(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	body, _ := io.ReadAll(r.Body)
 	json.Unmarshal(body, m.update)
@@ -149,10 +150,10 @@ func (m *MessDFSStorageAPI) deleteDirectory(w http.ResponseWriter, r *http.Reque
 func (m *MessDFSStorageAPI) deleteFile(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path
 	splittedPath := strings.Split(path, "/")
-	m.deleteFile.DirName = splittedPath[2]
-	m.deleteFile.FileToDelete = splittedPath[3]
+	m.deleteF.DirName = splittedPath[2]
+	m.deleteF.FileToDelete = splittedPath[3]
 
-	if err := m.DeleteFile(m.deleteFile.DirName, m.deleteFile.FileToDelete); err != nil {
+	if err := m.DeleteFile(m.deleteF.DirName, m.deleteF.FileToDelete); err != nil {
 		http.Error(w, err.Error(), 500)
 	} else {
 		message := map[string]string{
@@ -163,7 +164,7 @@ func (m *MessDFSStorageAPI) deleteFile(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func wirter(w http.ResponseWriter, data map[string]string) {
+func writer(w http.ResponseWriter, data map[string]string) {
 	encoder := json.NewEncoder(w)
 	
 	w.WriteHeader(http.StatusCreated)
