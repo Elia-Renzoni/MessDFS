@@ -36,13 +36,13 @@ func (m *MessDFSStorageAPI) Start() {
 
 	fmt.Printf("Server Listening...")
 
-	mux.HandleFunc("POST /csvi", m.insertCSV)
-	mux.HandleFunc("UPDATE /csvu", m.updateCSV)
-	mux.HandleFunc("DELETE /csvd/", m.deleteCSV)
-	mux.HandleFunc("READ /csvr/", m.readCSV)
-	mux.HandleFunc("POST /ndir", m.createDirectory)
-	mux.HandleFunc("DELETE /ddir/", m.deleteDirectory)
-	mux.HandleFunc("DELETE /dfile/", m.deleteFile)
+	mux.HandleFunc("/csvi", m.insertCSV)
+	mux.HandleFunc("/csvu", m.updateCSV)
+	mux.HandleFunc("/csvd/", m.deleteCSV)
+	mux.HandleFunc("/csvr/", m.readCSV)
+	mux.HandleFunc("/ndir", m.createDirectory)
+	mux.HandleFunc("/ddir/", m.deleteDirectory)
+	mux.HandleFunc("/dfile/", m.deleteFile)
 
 	http.ListenAndServe(m.address, nil)
 }
