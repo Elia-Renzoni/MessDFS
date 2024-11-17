@@ -21,6 +21,8 @@ type PairChecker struct {
 	columnIndex int
 }
 
+var mainDir string
+
 // change the worker dir to path specified
 type changeWorkDir func(string) error
 
@@ -36,7 +38,7 @@ const (
 )
 
 func (r *ResourceController) CreateNewDir(dirname string) error {
-	if err := os.Mkdir(filepath.Join("E:/RenzoFS", "local_file_system", dirname), os.ModeDir); err != nil {
+	if err := os.Mkdir(filepath.Join(mainDir, "files", dirname), os.ModeDir); err != nil {
 		return err
 	}
 	return nil
@@ -375,7 +377,7 @@ func changeWorkerDirectory(dirname string) error {
 	switch {
 	case dirname != "":
 		for {
-			if err := os.Chdir(filepath.Join("E:/RenzoFS", "local_file_system", dirname)); err != nil {
+			if err := os.Chdir(filepath.Join(mainDir, "files", dirname)); err != nil {
 				return err
 			} else {
 				break
@@ -383,7 +385,7 @@ func changeWorkerDirectory(dirname string) error {
 		}
 	case dirname == "":
 		for {
-			if err := os.Chdir(filepath.Join("E:/RenzoFS", "local_file_system")); err != nil {
+			if err := os.Chdir(filepath.Join(mainDir, "files")); err != nil {
 				return err
 			} else {
 				break
@@ -395,7 +397,14 @@ func changeWorkerDirectory(dirname string) error {
 }
 
 func changeToMainDirectory() error {
-	if err := os.Chdir("E:/RenzoFS"); err != nil {
+	path, err := os.Getwd()
+	if err != nil {
+		return err 
+	}
+	splitted := strings.Split(path, "/")
+	mainDir = splitted[1]
+
+	if err := os.Chdir(main); err != nil {
 		return err
 	}
 	return nil
