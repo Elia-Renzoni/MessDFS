@@ -51,40 +51,8 @@ func (r *ResourceController) DeleteDir(dirname string) error {
 	return nil
 }
 
-func (r *ResourceController) GetFileInformations(dirname, filename string) (os.FileInfo, error) {
-	var (
-		fileInfo    os.FileInfo
-		err         error
-		firstChange changeWorkDir = changeWorkerDirectory
-		lastChange  backToHomeDir = changeToMainDirectory
-	)
-
-	defer lastChange()
-
-	if err := firstChange(dirname); err != nil {
-		return fileInfo, err
-	}
-
-	fileInfo, err = os.Stat(filename)
-	if err != nil {
-		return fileInfo, err
-	}
-	return fileInfo, nil
-}
-
 func (r *ResourceController) DeleteFile(dirname, filename string) error {
-	var (
-		firstDirChange changeWorkDir = changeWorkerDirectory
-		lastDirChange  backToHomeDir = changeToMainDirectory
-	)
-
-	defer lastDirChange()
-
-	if err := firstDirChange(dirname); err != nil {
-		return err
-	}
-
-	if err := os.Remove(filename); err != nil {
+	if err := os.Remove(filepath.Join("files", dir, filename)); err != nil {
 		return err
 	}
 
@@ -113,7 +81,6 @@ func (r *ResourceController) WriteRemoteCSV(dir, filename, queryType string, que
 	return nil
 }
 
-// TODO
 func (r *ResourceController) ReadInRemoteCSV(dir, filename, queryType string, query url.Values) (map[string]string, error) {
 	var (
 		storeControlResult  []PairChecker     = make([]PairChecker, 0)
@@ -254,8 +221,6 @@ func (r *ResourceController) UpdateRemoteCSV(dir, filename, queryType string, qu
 
 func (r *ResourceController) DeleteRemoteCSV(dir, filename, queryType string, query url.Values) error {
 	var (
-		firstChange         changeWorkDir = changeWorkerDirectory
-		lastChange          backToHomeDir = changeToMainDirectory
 		emptyField          string        = "/"
 		storeControlResults []PairChecker = make([]PairChecker, 0)
 	)
@@ -267,12 +232,7 @@ func (r *ResourceController) DeleteRemoteCSV(dir, filename, queryType string, qu
 		return errors.New("Invalid Crud Operation")
 	}
 
-	defer lastChange()
-	if err := firstChange(dir); err != nil {
-		return err
-	}
-
-	file, err := os.OpenFile(filename, os.O_RDWR, 0644)
+	file, err := os.OpenFile(filepath.Join("files", dir, filename), os.O_RDWR, 0644)
 	if err != nil {
 		return err
 	}
@@ -322,7 +282,7 @@ func (r *ResourceController) DeleteRemoteCSV(dir, filename, queryType string, qu
 	}
 
 	// file truncation to avoid redundancy
-	if trErr := os.Truncate(filename, 0); trErr != nil {
+	if trErr := os.Truncate(filepath.Join("files", dir, filename), 0); trErr != nil {
 		return trErr
 	}
 
@@ -331,51 +291,5 @@ func (r *ResourceController) DeleteRemoteCSV(dir, filename, queryType string, qu
 		return err
 	}
 
-	return nil
-}
-
-func changeWorkerDirectory(dirname string) error {
-	//main, _ := getMainDir()
-	switch {
-	case dirname != "":
-		for {
-			if err := os.Chdir(filepath.Join(mainDir, "files", dirname)); err != nil {
-				return err
-			} else {
-				break
-			}
-		}
-	case dirname == "":
-		for {
-			if err := os.Chdir(filepath.Join(mainDir, "files")); err != nil {
-				return err
-			} else {
-				break
-			}
-		}
-	}
-
-	return nil
-}
-
-
-func changeDirectory() error {
-	if err := os.Chdir("files"); err != nil {
-		return err
-	}
-	return nil
-}
-
-func changeToMainDirectory() error {
-	path, err := os.Getwd()
-	if err != nil {
-		return err 
-	}
-	splitted := strings.Split(path, "/")
-	mainDir = splitted[1]
-
-	if err := os.Chdir(mainDir); err != nil {
-		return err
-	}
 	return nil
 }
