@@ -3,7 +3,6 @@ package internal
 import (
 	"encoding/csv"
 	"errors"
-	"fmt"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -117,25 +116,16 @@ func (r *ResourceController) WriteRemoteCSV(dir, filename, queryType string, que
 // TODO
 func (r *ResourceController) ReadInRemoteCSV(dir, filename, queryType string, query url.Values) (map[string]string, error) {
 	var (
-		firstChange         changeWorkDir     = changeWorkerDirectory
-		lastChange          backToHomeDir     = changeToMainDirectory
 		storeControlResult  []PairChecker     = make([]PairChecker, 0)
 		idToSearch          string            = query.Get("id")
 		readOperationResult map[string]string = make(map[string]string)
 	)
 
-	fmt.Printf("%s", idToSearch)
-
 	if queryType != read {
 		return nil, errors.New("Invalid Crud Operation")
 	}
 
-	defer lastChange()
-	if err := firstChange(dir); err != nil {
-		return nil, err
-	}
-
-	file, err := os.OpenFile(filename, os.O_RDONLY, 0644)
+	file, err := os.OpenFile(filepath.Join("files", dir, filename), os.O_RDONLY, 0644)
 	if err != nil {
 		return nil, err
 	}
@@ -180,8 +170,6 @@ func (r *ResourceController) ReadInRemoteCSV(dir, filename, queryType string, qu
 
 func (r *ResourceController) UpdateRemoteCSV(dir, filename, queryType string, query map[string][]string) error {
 	var (
-		//firstChange         changeWorkDir = changeWorkerDirectory
-		//lastChange          backToHomeDir = changeToMainDirectory
 		storeControlResults []PairChecker = make([]PairChecker, 0)
 		idList              []string      = make([]string, 0)
 	)
@@ -193,13 +181,7 @@ func (r *ResourceController) UpdateRemoteCSV(dir, filename, queryType string, qu
 		return errors.New("Invalid Crud Operation")
 	}
 
-	/*defer lastChange()
-	if err := firstChange(dir); err != nil {
-		return err
-	}*/
-
-
-	file, err := os.OpenFile(filename, os.O_RDWR, 0644)
+	file, err := os.OpenFile(filepath.Join("files", dir, filename), os.O_RDWR, 0644)
 	if err != nil {
 		return err
 	}
@@ -258,7 +240,7 @@ func (r *ResourceController) UpdateRemoteCSV(dir, filename, queryType string, qu
 	}
 
 	// file truncation to show updates without redundancy
-	if trErr := os.Truncate(filename, 0); trErr != nil {
+	if trErr := os.Truncate(filepath.Join("files", dir, filename), 0); trErr != nil {
 		return trErr
 	}
 

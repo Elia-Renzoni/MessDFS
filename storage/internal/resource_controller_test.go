@@ -3,6 +3,7 @@ package internal_test
 import (
 	"testing"
 	"storageservice/internal"
+	"net/url"
 )
 
 func TestCreateNewDir(t *testing.T) {
@@ -59,4 +60,26 @@ func TestWriteRemoteCSV(t *testing.T) {
 		t.Errorf("%v", err)
 	}
 } 
+
+func TestReadInRemoteCSV(t *testing.T) {
+	controller := internal.ResourceController{}
+	v := url.Values{}
+	v.Set("id", "12")
+
+	_, err := controller.ReadInRemoteCSV("test_dir3", "test_file.csv", "read", v)
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+}
+
+func TestUpdateInRemoteCSV(t *testing.T) {
+	controller := internal.ResourceController{}
+	v := map[string][]string{
+		"Name": []string{"12", "Paolo", "Pippo"},
+	}
+
+	if err := controller.UpdateRemoteCSV("test_dir3", "test_file.csv", "update", v); err != nil {
+		t.Errorf("%v", err)
+	}
+}
 
