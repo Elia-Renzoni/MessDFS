@@ -30,10 +30,33 @@ func TestWriteRemoteCSV(t *testing.T) {
 		"Surname",
 	}
 
-	controller.CreateNewDir("test_dir2")
+	var (
+		query2 = []string {
+			"12",
+			"Paolo",
+			"Rossi",
+		}
+		query3 = []string {
+			"34",
+			"Marta",
+			"Grossi",
+		}
+	)
 
-	if err := controller.WriteRemoteCSV("test_dir2", "test_file.csv", "insert", query); err != nil {
-		t.Errorf("%v", err) // fail
+	if err := controller.CreateNewDir("test_dir3"); err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if err := controller.WriteRemoteCSV("test_dir3", "test_file.csv", "insert", query); err != nil {
+		t.Errorf("%v", err) 
+	}
+
+	if err := controller.WriteRemoteCSV("test_dir3", "test_file.csv", "insert", query2); err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if err := controller.WriteRemoteCSV("test_dir3", "test_file.csv", "insert", query3); err != nil {
+		t.Errorf("%v", err)
 	}
 } 
 

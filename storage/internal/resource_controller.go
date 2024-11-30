@@ -38,26 +38,14 @@ const (
 )
 
 func (r *ResourceController) CreateNewDir(dirname string) error {
-	if err := os.Mkdir(filepath.Join(mainDir, "files", dirname), os.ModeDir); err != nil {
+	if err := os.Mkdir(filepath.Join(mainDir, "files", dirname), 0750); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (r *ResourceController) DeleteDir(dirname string) error {
-	var (
-		firstDirChange changeWorkDir = changeWorkerDirectory
-		lastDirChange  backToHomeDir = changeToMainDirectory
-	)
-
-	defer lastDirChange()
-
-	// change to local_file_system
-	if err := firstDirChange(""); err != nil {
-		return err
-	}
-
-	if err := os.Remove(dirname); err != nil {
+	if err := os.Remove(filepath.Join(mainDir, "files", dirname)); err != nil {
 		return err
 	}
 
@@ -105,11 +93,6 @@ func (r *ResourceController) DeleteFile(dirname, filename string) error {
 }
 
 func (r *ResourceController) WriteRemoteCSV(dir, filename, queryType string, query []string) error {
-	var (
-		firstChange changeWorkDir = changeWorkerDirectory
-		lastChange  backToHomeDir = changeToMainDirectory
-	)
-
 	r.mutex.Lock()
 	defer r.mutex.Unlock()
 
@@ -117,12 +100,7 @@ func (r *ResourceController) WriteRemoteCSV(dir, filename, queryType string, que
 		return errors.New("Invalid Crud Operation")
 	}
 
-	defer lastChange()
-	if err := firstChange(dir); err != nil {
-		return err
-	}
-
-	file, err := os.OpenFile(filename, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
+	file, err := os.OpenFile(filepath.Join("files", dir, filename), os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
 	if err != nil {
 		return err
 	}
@@ -202,8 +180,8 @@ func (r *ResourceController) ReadInRemoteCSV(dir, filename, queryType string, qu
 
 func (r *ResourceController) UpdateRemoteCSV(dir, filename, queryType string, query map[string][]string) error {
 	var (
-		firstChange         changeWorkDir = changeWorkerDirectory
-		lastChange          backToHomeDir = changeToMainDirectory
+		//firstChange         changeWorkDir = changeWorkerDirectory
+		//lastChange          backToHomeDir = changeToMainDirectory
 		storeControlResults []PairChecker = make([]PairChecker, 0)
 		idList              []string      = make([]string, 0)
 	)
@@ -215,10 +193,11 @@ func (r *ResourceController) UpdateRemoteCSV(dir, filename, queryType string, qu
 		return errors.New("Invalid Crud Operation")
 	}
 
-	defer lastChange()
+	/*defer lastChange()
 	if err := firstChange(dir); err != nil {
 		return err
-	}
+	}*/
+
 
 	file, err := os.OpenFile(filename, os.O_RDWR, 0644)
 	if err != nil {
@@ -374,6 +353,7 @@ func (r *ResourceController) DeleteRemoteCSV(dir, filename, queryType string, qu
 }
 
 func changeWorkerDirectory(dirname string) error {
+	//main, _ := getMainDir()
 	switch {
 	case dirname != "":
 		for {
@@ -393,6 +373,14 @@ func changeWorkerDirectory(dirname string) error {
 		}
 	}
 
+	return nil
+}
+
+
+func changeDirectory() error {
+	if err := os.Chdir("files"); err != nil {
+		return err
+	}
 	return nil
 }
 
