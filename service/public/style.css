@@ -1,0 +1,47 @@
+
+body {
+    background-color: beige;
+}
+
+.json-editor-index {
+    width: 500px;
+    height: 500px;
+    background-color: aqua;
+    /*border: 2px solid red;*/
+    position: absolute;
+    left: 35%;
+    right: 35%;
+    top: 30%;
+    bottom: 35%;
+}
+
+.json-editor-index textarea {
+    width: inherit;
+    height: inherit;
+    border: inherit;
+    font-size: 18px;
+}
+
+button {
+    width: 500px;
+    height: 100px;
+    background-color: black;
+    font-size: 18px;
+    color: white;
+    position: absolute;
+    top: 85%;
+    left: 35%;
+    right: 35%;
+
+}
+
+.nick {
+    position: absolute;
+    top: 20%;
+    left: 35%;
+    right: 35%;
+    width: 500px;
+    height: 80px;
+    border: 2px solid red;
+    text-align: center;
+}
