@@ -56,3 +56,26 @@ button {
     border-radius: 50%;
     background-color: aqua;
 }
+
+.menu {
+    position: absolute;
+    top: 1%;
+    left: 80%;
+    width: 300px;
+    height: 50px;
+    background-color: brown;
+}
+
+.menu input {
+    width: inherit;
+    height: inherit;
+}
+
+.send-search {
+    position: absolute;
+    top: 1%;
+    left: 102%;
+    width: 50px;
+    height: 50px;
+    background-color: brown;
+}
