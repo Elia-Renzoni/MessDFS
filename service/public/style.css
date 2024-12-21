@@ -124,3 +124,39 @@ label {
     text-align: center;
     font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
 }
+
+
+/*
+
+    signup.html file
+
+*/
+
+
+h1 {
+    text-align: center;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+
+.signup-div {
+    width: 500px;
+    height: 500px;
+    /*border: solid 1px red;*/
+    position: absolute;
+    left: 35%;
+    right: 35%;
+    top: 20%;
+}
+
+.signup-div input {
+    width: 100%;
+    height: 10%;
+}
+
+.signup-div button {
+    width: 100%;
+    height: 20%;
+    position: absolute;
+    left: 0%;
+    top: 100%;
+}
