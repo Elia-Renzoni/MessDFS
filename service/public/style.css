@@ -90,8 +90,8 @@ button {
     position: absolute;
     width: 500px;
     height: 300px;
-    left: 35%;
-    right: 35%;
+    left: 37%;
+    right: 37%;
     top: 35%;
     /*border: solid red 1px;*/
 }
@@ -143,8 +143,8 @@ h1 {
     height: 500px;
     /*border: solid 1px red;*/
     position: absolute;
-    left: 35%;
-    right: 35%;
+    left: 37%;
+    right: 37%;
     top: 20%;
 }
 
@@ -173,8 +173,8 @@ h1 {
     width: 500px;
     height: 300px;
     position: absolute;
-    left: 35%;
-    left: 35%;
+    left: 37%;
+    left: 37%;
     top: 35%;
     /*border: solid 1px red;*/
 }
