@@ -78,4 +78,49 @@ button {
     width: 50px;
     height: 50px;
     background-color: brown;
+    font-size: 18px;
+}
+
+
+/*
+    login.html file
+*/
+
+.login-div {
+    position: absolute;
+    width: 500px;
+    height: 300px;
+    left: 35%;
+    right: 35%;
+    top: 35%;
+    /*border: solid red 1px;*/
+}
+
+#send-login {
+    width: 100%;
+    height: 30%;
+    position: absolute;
+    background-color: black;
+    font-size: 18px;
+    left: 0%;
+    top: 70%;
+}
+
+#username {
+    width: 100%;
+    height: 20%;
+}
+
+#password {
+    width: 100%;
+    height: 20%;
+}
+
+label {
+    font-size: 18px;
+}
+
+.messDFS-login {
+    text-align: center;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
 }
