@@ -160,3 +160,32 @@ h1 {
     left: 0%;
     top: 100%;
 }
+
+/*
+
+
+    signout.html file
+
+
+*/
+
+.signout-div {
+    width: 500px;
+    height: 300px;
+    position: absolute;
+    left: 35%;
+    left: 35%;
+    top: 35%;
+    /*border: solid 1px red;*/
+}
+
+.signout-div input {
+    width: 100%;
+    height: 20%;
+}
+
+.signout-div button {
+    width: 100%;
+    height: 30%;
+    left: 0%;
+}
