@@ -52,7 +52,7 @@ func (r *ResourceController) DeleteDir(dirname string) error {
 }
 
 func (r *ResourceController) DeleteFile(dirname, filename string) error {
-	if err := os.Remove(filepath.Join("files", dir, filename)); err != nil {
+	if err := os.Remove(filepath.Join("files", dirname, filename)); err != nil {
 		return err
 	}
 

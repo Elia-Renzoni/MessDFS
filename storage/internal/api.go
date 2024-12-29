@@ -1,32 +1,32 @@
 package internal
 
 import (
+	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
 	"storageservice/internal/middleware"
 	"storageservice/model"
-	"encoding/json"
-	"io"
 	"strings"
-	"fmt"
 )
 
 type MessDFSStorageAPI struct {
-	address string
+	address       string
 	jwtMiddleware *middleware.Middleware
 	ResourceController
 
 	createDir model.CreateDirPayload
 	deleteDir model.DeleteDirPayload
-	deleteF model.DeleteFilePayload
-	delete model.DeletePayload
-	insert model.InsertPayload
-	read model.ReadPayload
-	update model.UpdatePayload
+	deleteF   model.DeleteFilePayload
+	delete    model.DeletePayload
+	insert    model.InsertPayload
+	read      model.ReadPayload
+	update    model.UpdatePayload
 }
 
 func NewStorage(address string) *MessDFSStorageAPI {
 	return &MessDFSStorageAPI{
-		address: address,
+		address:       address,
 		jwtMiddleware: middleware.NewMiddleware(),
 	}
 }
@@ -44,9 +44,8 @@ func (m *MessDFSStorageAPI) Start() {
 	mux.HandleFunc("/ddir/", m.deleteDirectory)
 	mux.HandleFunc("/dfile/", m.deleteFile)
 
-	http.ListenAndServe(m.address, nil)
+	http.ListenAndServe(m.address, mux)
 }
-
 
 func (m *MessDFSStorageAPI) insertCSV(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
@@ -166,7 +165,7 @@ func (m *MessDFSStorageAPI) deleteFile(w http.ResponseWriter, r *http.Request) {
 
 func writer(w http.ResponseWriter, data map[string]string) {
 	encoder := json.NewEncoder(w)
-	
+
 	w.WriteHeader(http.StatusCreated)
 	w.Header().Set("Content-Type", "application/json")
 	encoder.Encode(data)
