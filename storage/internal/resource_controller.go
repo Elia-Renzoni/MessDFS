@@ -22,12 +22,6 @@ type PairChecker struct {
 
 var mainDir string
 
-// change the worker dir to path specified
-type changeWorkDir func(string) error
-
-// goes back to renzofs main dir
-type backToHomeDir func() error
-
 // crud operations
 const (
 	insert string = "insert"
