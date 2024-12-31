@@ -20,7 +20,6 @@ class Router:
 
     def start_handler(self):
         print("Server Listening...")
-        thread = None
         while True:
             conn, client_addr = self.listen.accept()
             data = conn.recv(2024).decode()
@@ -32,17 +31,16 @@ class Router:
             match url[1]:
                 case "signout":
                    thread = threading.Thread(target=signout.Signout.handle_signout_requests) 
+                   thread.start()
                 case "login":
                     thread= threading.Thread(target=login.Login.handle_login_req)
+                    thread.start()
                 case "signup":
                     thread = threading.Thread(target=signup.Signup.handle_signup_request)
+                    thread.start()
                 case _:
                     payload = {
                         'err': 'invalid endpoint name'
                     }
                     json_payload = json.dumps(payload)
                     conn.send(bytes(json_payload.encode()))
-            thread.start()
-
-
-    
