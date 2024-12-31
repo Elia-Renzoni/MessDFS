@@ -27,6 +27,7 @@ class Router:
             parsed_data = data.split('\r\n')
             # localhost:8080/insert/pippo
             url = parsed_data[0].split("/")
+            print(url)
             # TODO: add parameters to the threadssss
             match url[1]:
                 case "signout":
@@ -37,9 +38,10 @@ class Router:
                     thread = threading.Thread(target=signup.Signup.handle_signup_request)
                 case _:
                     payload = {
-                        "err": "invalid endpoint name"
+                        'err': 'invalid endpoint name'
                     }
-                    conn.send(json.dump(payload))
+                    json_payload = json.dumps(payload)
+                    conn.send(bytes(json_payload.encode()))
             thread.start()
 
 
