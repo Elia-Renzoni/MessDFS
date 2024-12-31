@@ -4,9 +4,9 @@
 
 import socket
 import threading
-import login
-import signout
-import signup
+import app.login as login
+import app.signout as signout
+import app.signup as signup
 import json
 
 class Router:
