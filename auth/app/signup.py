@@ -8,4 +8,5 @@ class Signup:
         pass
 
     def handle_signup_request(conn, client_address):
-        pass
+        conn.send(bytes("HTTP/1.1 200 OK\n\nHello From Signup".encode()))
+        conn.close()
