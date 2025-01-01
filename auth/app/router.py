@@ -16,6 +16,7 @@ class Router:
         self.signout = signout.Signout()
         self.signup = signup.Signup()
         self.listen = socket.create_server((self.host, self.port))
+        self.listen.timeout(3)
 
     def start_handler(self):
         print("Server Listening...")
@@ -24,7 +25,6 @@ class Router:
             data = conn.recv(2024).decode()
             parsed_data = data.split('\r\n')
             url = parsed_data[0].split("/")
-            print(url)
             endpoint = url[1].split(" ")
             match endpoint[0]:
                 case "signout":
