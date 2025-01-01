@@ -27,13 +27,14 @@ class Router:
             # localhost:8080/insert/pippo
             url = parsed_data[0].split("/")
             print(url)
+            endpoint = url[1].split(" ")
             # TODO: add parameters to the threadssss
-            match url[1]:
+            match endpoint[0]:
                 case "signout":
                    thread = threading.Thread(target=signout.Signout.handle_signout_requests) 
                    thread.start()
                 case "login":
-                    thread= threading.Thread(target=login.Login.handle_login_req)
+                    thread= threading.Thread(target=login.Login.handle_login_req, args=(conn, client_addr))
                     thread.start()
                 case "signup":
                     thread = threading.Thread(target=signup.Signup.handle_signup_request)
