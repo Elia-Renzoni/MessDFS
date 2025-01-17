@@ -207,6 +207,7 @@ func (r *ResourceController) UpdateRemoteCSV(dir, filename, queryType string, qu
 		return trErr
 	}
 
+	// reset the offset to the beginning of the file
 	_, err = file.Seek(0, 0)
 	if err != nil {
 		return err
@@ -224,6 +225,8 @@ func (r *ResourceController) DeleteRemoteCSV(dir, filename, queryType string, qu
 	var (
 		emptyField          string        = "/"
 		storeControlResults []PairChecker = make([]PairChecker, 0)
+		file                *os.File
+		err                 error
 	)
 
 	r.mutex.Lock()
@@ -233,7 +236,7 @@ func (r *ResourceController) DeleteRemoteCSV(dir, filename, queryType string, qu
 		return errors.New("Invalid Crud Operation")
 	}
 
-	file, err := os.OpenFile(filepath.Join("files", dir, filename), os.O_RDWR, 0644)
+	file, err = os.OpenFile(filepath.Join("files", dir, filename), os.O_RDWR, 0644)
 	if err != nil {
 		return err
 	}
@@ -285,6 +288,12 @@ func (r *ResourceController) DeleteRemoteCSV(dir, filename, queryType string, qu
 	// file truncation to avoid redundancy
 	if trErr := os.Truncate(filepath.Join("files", dir, filename), 0); trErr != nil {
 		return trErr
+	}
+
+	// restored the offset position after the truncate call
+	_, err = file.Seek(0, 0)
+	if err != nil {
+		return err
 	}
 
 	writer := csv.NewWriter(file)
