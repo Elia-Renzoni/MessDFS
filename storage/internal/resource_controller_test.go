@@ -1,9 +1,9 @@
 package internal_test
 
 import (
-	"testing"
-	"storageservice/internal"
 	"net/url"
+	"storageservice/internal"
+	"testing"
 )
 
 func TestCreateNewDir(t *testing.T) {
@@ -32,12 +32,12 @@ func TestWriteRemoteCSV(t *testing.T) {
 	}
 
 	var (
-		query2 = []string {
+		query2 = []string{
 			"12",
 			"Paolo",
 			"Rossi",
 		}
-		query3 = []string {
+		query3 = []string{
 			"34",
 			"Marta",
 			"Grossi",
@@ -49,7 +49,7 @@ func TestWriteRemoteCSV(t *testing.T) {
 	}
 
 	if err := controller.WriteRemoteCSV("test_dir3", "test_file.csv", "insert", query); err != nil {
-		t.Errorf("%v", err) 
+		t.Errorf("%v", err)
 	}
 
 	if err := controller.WriteRemoteCSV("test_dir3", "test_file.csv", "insert", query2); err != nil {
@@ -59,7 +59,7 @@ func TestWriteRemoteCSV(t *testing.T) {
 	if err := controller.WriteRemoteCSV("test_dir3", "test_file.csv", "insert", query3); err != nil {
 		t.Errorf("%v", err)
 	}
-} 
+}
 
 func TestReadInRemoteCSV(t *testing.T) {
 	controller := internal.ResourceController{}
@@ -83,3 +83,9 @@ func TestUpdateInRemoteCSV(t *testing.T) {
 	}
 }
 
+func TestCreateNewDir2(t *testing.T) {
+	controller := &internal.ResourceController{}
+	if err := controller.CreateNewDir("test_dir4"); err != nil {
+		t.Errorf("%v", err)
+	}
+}

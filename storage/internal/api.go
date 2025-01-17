@@ -50,8 +50,10 @@ func (m *MessDFSStorageAPI) Start() {
 func (m *MessDFSStorageAPI) insertCSV(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	body, _ := io.ReadAll(r.Body)
-	json.Unmarshal(body, m.insert)
+	json.Unmarshal(body, &m.insert)
 
+	fmt.Printf("Metodo ==> %v", m.insert.QueryType)
+	fmt.Printf("File Name ==> %v", m.insert.FileName)
 	if err := m.WriteRemoteCSV(m.insert.User, m.insert.FileName, m.insert.QueryType, m.insert.QueryContent); err != nil {
 		http.Error(w, err.Error(), 500)
 	} else {
@@ -101,7 +103,7 @@ func (m *MessDFSStorageAPI) readCSV(w http.ResponseWriter, r *http.Request) {
 func (m *MessDFSStorageAPI) updateCSV(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	body, _ := io.ReadAll(r.Body)
-	json.Unmarshal(body, m.update)
+	json.Unmarshal(body, &m.update)
 
 	if err := m.UpdateRemoteCSV(m.update.User, m.update.FileName, m.update.QueryType, m.update.QueryContent); err != nil {
 		http.Error(w, err.Error(), 500)
@@ -117,7 +119,7 @@ func (m *MessDFSStorageAPI) updateCSV(w http.ResponseWriter, r *http.Request) {
 func (m *MessDFSStorageAPI) createDirectory(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	body, _ := io.ReadAll(r.Body)
-	json.Unmarshal(body, m.createDir)
+	json.Unmarshal(body, &m.createDir)
 
 	if err := m.CreateNewDir(m.createDir.DirToCreate); err != nil {
 		http.Error(w, err.Error(), 500)

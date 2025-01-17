@@ -31,7 +31,8 @@ const (
 )
 
 func (r *ResourceController) CreateNewDir(dirname string) error {
-	if err := os.Mkdir(filepath.Join(mainDir, "files", dirname), 0750); err != nil {
+
+	if err := os.Mkdir(filepath.Join("files", dirname), 0750); err != nil {
 		return err
 	}
 	return nil
