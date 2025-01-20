@@ -16,7 +16,7 @@ class Router:
         self.signout = signout.Signout()
         self.signup = signup.Signup()
         self.listen = socket.create_server((self.host, self.port))
-        self.listen.timeout(3)
+        #self.listen.timeout(3)
 
     def start_handler(self):
         print("Server Listening...")

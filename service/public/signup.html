@@ -23,4 +23,36 @@
         <button id="signup-button">Signup!</button>
     </div>
 </body>
+
+<script>
+    const signupButton = document.getElementById("signup-button")
+
+    signupButton.addEventListener("click", function() {
+        const name = document.getElementById("name")
+        const surname = document.getElementById("surname")
+        const email = document.getElementById("email")
+        const username = document.getElementById("username-signup")
+        const password = document.getElementById("password-singup")
+
+        fetch("http://localhost:8082/signup", {
+            method: "POST",
+            body: JSON.stringify({
+                name: name.value,
+                surname: surname.value,
+                email: email.value,
+                username: username.value,
+                password: password.value,   
+            }),
+            headers: {
+                "Content-Type": "application/json",
+            },
+        })
+        .then(function(response) {
+            return response.json()
+        })
+        .then(function(data) {
+            console.log(data)
+        })
+    })
+</script>
 </html>

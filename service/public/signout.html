@@ -14,7 +14,33 @@
         <input type="text" id="username-signout"> <br>
         <label for="password-signout">Password</label>
         <input type="password" id="password-signout">
-        <button>Signout</button>
+        <button id="signout-button">Signout</button>
     </div>
 </body>
+
+<script>
+    const signoutButton = document.getElementById("signout-button")
+
+    signoutButton.addEventListener("click", function() {
+        const username = document.getElementById("username-signout")
+        const password = document.getElementById("password-signout")
+
+        fetch("http://localhost:8082/signout", {
+            method: "POST",
+            body: JSON.stringify({
+                username: username.value,
+                password: password.value,
+            }),
+            headers: {
+                "Content-Type": "application/json",
+            },
+        })
+        .then(function(response) {
+            return response.json()
+        }) 
+        .then(function(data) {
+            console.log(data)
+        })
+    })
+</script>
 </html>

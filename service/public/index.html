@@ -9,11 +9,11 @@
 <body>
     <!-- JSON Editor-->
     <div class="json-editor-index">
-        <textarea name="" id=""></textarea>
+        <textarea name="" id="textarea"></textarea>
     </div>
 
     <!-- Send Button -->
-     <button>Send JSON Query</button>
+     <button id="json-query-btn">Send JSON Query</button>
 
      <!-- Nick -->
     <div class="nick">
@@ -31,4 +31,16 @@
         <button class="send-search">Send</button>
      </div>
 </body>
+
+<script>
+    const jsonQueryButton = document.getElementById("json-query-btn")
+
+    jsonQueryButton.addEventListener("click", function() {
+        const dataToSend = document.getElementById("textarea")
+
+        fetch("http://localhost:8081/insert", {
+            // TODO
+        })
+    })
+</script>
 </html>
