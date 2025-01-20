@@ -28,13 +28,13 @@ class Router:
             endpoint = url[1].split(" ")
             match endpoint[0]:
                 case "signout":
-                   thread = threading.Thread(target=signout.Signout.handle_signout_requests, args=(conn, client_addr)) 
+                   thread = threading.Thread(target=signout.Signout.handle_signout_requests, args=(data, conn, client_addr)) 
                    thread.start()
                 case "login":
-                    thread= threading.Thread(target=login.Login.handle_login_req, args=(conn, client_addr))
+                    thread= threading.Thread(target=login.Login.handle_login_req, args=(data, conn, client_addr))
                     thread.start()
                 case "signup":
-                    thread = threading.Thread(target=signup.Signup.handle_signup_request, args=(conn, client_addr))
+                    thread = threading.Thread(target=signup.Signup.handle_signup_request, args=(data, conn, client_addr))
                     thread.start()
                 case _:
                     response = "HTTP/1.1 500 INTERNAL SERVER ERROR\n\n" 
