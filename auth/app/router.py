@@ -2,41 +2,45 @@
 #   HTTP Router
 #
 
-import socket
-import threading
-import app.login as login
-import app.signout as signout
-import app.signup as signup
+from http.server import BaseHTTPRequestHandler, HTTPServer
+import sys
 
-class Router:
-    def __init__(self, host, listen_port):
-        self.host = host
-        self.port = listen_port
-        self.login = login.Login()
-        self.signout = signout.Signout()
-        self.signup = signup.Signup()
-        self.listen = socket.create_server((self.host, self.port))
-        #self.listen.timeout(3)
-
-    def start_handler(self):
-        print("Server Listening...")
-        while True:
-            conn, client_addr = self.listen.accept()
-            data = conn.recv(2024).decode()
-            parsed_data = data.split('\r\n')
-            url = parsed_data[0].split("/")
-            endpoint = url[1].split(" ")
-            match endpoint[0]:
-                case "signout":
-                   thread = threading.Thread(target=signout.Signout.handle_signout_requests, args=(data, conn, client_addr)) 
-                   thread.start()
-                case "login":
-                    thread= threading.Thread(target=login.Login.handle_login_req, args=(data, conn, client_addr))
-                    thread.start()
-                case "signup":
-                    thread = threading.Thread(target=signup.Signup.handle_signup_request, args=(data, conn, client_addr))
-                    thread.start()
-                case _:
-                    response = "HTTP/1.1 500 INTERNAL SERVER ERROR\n\n" 
-                    conn.send(bytes(response.encode()))
-                    conn.close()
+class Router(BaseHTTPRequestHandler):
+    # in case of HTTP 1.1
+    def do_OPTIONS(self):
+        self.send_response(200)
+        self.send_header("Access-Control-Allow-Origin", "*")  
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.end_headers()
+    
+    def do_POST(self):
+        match self.path:
+            case "/signout":
+                self.signout()
+            case "/login":
+                self.login()
+            case "/signup":
+                self.signup()
+    
+    def login(self):
+        print("login", file=sys.stdout)
+        self.send_response(200)  # Codice HTTP 200 OK
+        self.send_header("Content-Type", "text/plain")
+        self.end_headers()
+        self.wfile.write(b"Login endpoint reached")
+    
+    def signup(self):
+        print("signup", file=sys.stdout)
+        self.send_response(200)  # Codice HTTP 200 OK
+        self.send_header("Content-Type", "text/plain")
+        self.end_headers()
+        self.wfile.write(b"Signup endpoint reached")
+    
+    def signout(self):
+        print("signout", file=sys.stdout)
+        self.send_response(200)  # Codice HTTP 200 OK
+        self.send_header("Content-Type", "text/plain")
+        self.end_headers()
+        self.wfile.write(b"Signout endpoint reached")
+    
