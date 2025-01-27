@@ -7,6 +7,18 @@
     <title>Home</title>
 </head>
 <body>
+
+    <!-- Button -->
+    <select name="" id="select-index">
+        <option value="new-dir">Create Directory</option>
+        <option value="read-data">Get Data</option>
+        <option value="delete-dir">Delete Directory</option>
+        <option value="update-data">Update Data</option>
+        <option value="delete-data">Delete Data</option>
+        <option value="delete-file">Delete File</option>
+        <option value="insert-data">Insert Data</option>
+    </select>
+
     <!-- JSON Editor-->
     <div class="json-editor-index">
         <textarea name="" id="textarea"></textarea>
@@ -30,17 +42,84 @@
         <input type="search" name="" id="">
         <button class="send-search">Send</button>
      </div>
+
+     <div class="response-div">
+        <h3 id="response-header"></h3>
+     </div>
 </body>
 
 <script>
     const jsonQueryButton = document.getElementById("json-query-btn")
+    const opType = document.getElementById("select-index")
+    let selectedOption
+    const POST_NEW_DIR = "new-dir"
+    const GET_READ_DATA = "read-data"
+    const DELETE_DIR = "delete-dir"
+    const UPDATE_DATA = "update-data"
+    const DELETE_DATA = "delete-data"
+    const DELETE_FILE = "delete-file"
+    const POST_INSERT_DATA = "insert-data"
+    const responseH3 = document.getElementById("response-header")
+
+    opType.addEventListener("change", function(event) {
+        selectedOption = event.target.value
+        console.log(selectedOption)
+    })
 
     jsonQueryButton.addEventListener("click", function() {
         const dataToSend = document.getElementById("textarea")
+        console.log(dataToSend.value)
 
-        fetch("http://localhost:8081/insert", {
-            // TODO
-        })
+        switch (selectedOption) {
+            case POST_INSERT_DATA:
+                startPostPatch(dataToSend, "POST", "/csvi")
+                break
+            case POST_NEW_DIR: 
+                startPostPatch(dataToSend, "POST", "/ndir")
+                break
+            case UPDATE_DATA:
+                startPostPatch(dataToSend, "PUT", "/csvu") 
+                break
+            case DELETE_DATA: 
+                startDeleteGet(dataToSend, "DELETE")
+                break
+            case DELETE_DIR:
+                startDeleteGet(dataToSend, "DELETE")
+                break
+            case DELETE_FILE: 
+                startDeleteGet(dataToSend, "DELETE")
+                break
+            case GET_READ_DATA: 
+                startDeleteGet(dataToSend, "GET")
+                break
+            default:
+                console.log("Yeah!!")
+
+        }
     })
+
+    function startPostPatch(data, httpMethod, endpoint) {
+        const completeURL = "http://localhost:8081" + endpoint
+        console.log(completeURL)
+        fetch(completeURL, {
+            method: httpMethod,
+            mode:"no-cors",
+            body: data.value,
+            headers: {
+                "Content-Type": "application/json",
+            }
+        })
+        .then(function(response) {
+            return response.json()
+        })
+        .catch(function(data) {
+            responseH3.innerText = data
+        })
+    }
+
+    function startDeleteGet(url, httpMethod) {
+
+    }
+
 </script>
 </html>

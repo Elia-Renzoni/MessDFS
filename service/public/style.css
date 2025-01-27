@@ -81,6 +81,22 @@ button {
     font-size: 18px;
 }
 
+#select-index {
+    position: absolute;
+    left: 18%;
+    width: 300px;
+    top: 30%;
+}
+
+.response-div {
+    border: solid 1px red;
+    width: 300px;
+    height: 300px;
+    position: absolute;
+    top: 35%;
+    left: 10%;
+}
+
 
 /*
     login.html file
