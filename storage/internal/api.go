@@ -92,6 +92,8 @@ func (m *MessDFSStorageAPI) readCSV(w http.ResponseWriter, r *http.Request) {
 	m.read.FileName = splittedPath[3]
 	m.read.Query = r.URL.Query()
 
+	fmt.Printf("%s - %s - %s \n", m.read.User, m.read.FileName, m.read.Query)
+
 	response, err := m.ReadInRemoteCSV(m.read.User, m.read.FileName, "read", m.read.Query)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
@@ -166,9 +168,14 @@ func (m *MessDFSStorageAPI) deleteFile(w http.ResponseWriter, r *http.Request) {
 }
 
 func writer(w http.ResponseWriter, data map[string]string) {
-	encoder := json.NewEncoder(w)
+	jsonData, _ := json.Marshal(data)
+
+	fmt.Println(data)
 
 	w.WriteHeader(http.StatusCreated)
 	w.Header().Set("Content-Type", "application/json")
-	encoder.Encode(data)
+	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000") // Cambia con il tuo dominio
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+	w.Write(jsonData)
 }

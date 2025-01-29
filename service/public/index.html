@@ -110,7 +110,7 @@
             }
         })
         .then(function(response) {
-            return response.json()
+            return response.text()
         })
         .catch(function(data) {
             responseH3.innerText = data
@@ -118,8 +118,19 @@
     }
 
     function startDeleteGet(url, httpMethod) {
-
+        console.log(url)
+        fetch(url.value, {
+            method: httpMethod,
+            mode:"no-cors",
+        })
+        .then(function(response) {
+            console.log(response)
+            return response.json()
+        })
+        .catch(function(data) {
+            console.log(data)
+            responseH3.innerText = data
+        })
     }
-
 </script>
 </html>
