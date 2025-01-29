@@ -5,6 +5,7 @@ import (
 )
 
 type DeletePayload struct {
+	TransactionUser string
 	User string
 	FileName string 
 	Query url.Values
