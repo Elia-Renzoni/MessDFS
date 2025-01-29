@@ -14,6 +14,7 @@ type MessDFSStorageAPI struct {
 	address       string
 	jwtMiddleware *middleware.Middleware
 	ResourceController
+	serviceConn *AuthServiceTrigger
 
 	createDir model.CreateDirPayload
 	deleteDir model.DeleteDirPayload
@@ -28,6 +29,7 @@ func NewStorage(address string) *MessDFSStorageAPI {
 	return &MessDFSStorageAPI{
 		address:       address,
 		jwtMiddleware: middleware.NewMiddleware(),
+		serviceConn: NewAuthServiceTrigger(),
 	}
 }
 
@@ -52,6 +54,11 @@ func (m *MessDFSStorageAPI) insertCSV(w http.ResponseWriter, r *http.Request) {
 	body, _ := io.ReadAll(r.Body)
 	json.Unmarshal(body, &m.insert)
 
+	if isTransactionOk := m.serviceConn.CheckTransactionOwner(m.insert.TransactionUser, m.insert.User); !isTransactionOk {
+		writer(w, map[string]string{"err": "Transaction Not Allowed"})
+		return
+	}
+
 	fmt.Printf("Metodo ==> %v", m.insert.QueryType)
 	fmt.Printf("File Name ==> %v", m.insert.FileName)
 	if err := m.WriteRemoteCSV(m.insert.User, m.insert.FileName, m.insert.QueryType, m.insert.QueryContent); err != nil {
@@ -74,6 +81,11 @@ func (m *MessDFSStorageAPI) deleteCSV(w http.ResponseWriter, r *http.Request) {
 	m.delete.FileName = splittedPath[4]
 	m.delete.Query = r.URL.Query()
 
+	if isTransactionOk := m.serviceConn.CheckTransactionOwner(m.delete.TransactionUser, m.delete.User); !isTransactionOk {
+		writer(w, map[string]string{"err": "Transaction Not Allowed"})
+		return 
+	}
+
 	if err := m.DeleteRemoteCSV(m.delete.User, m.delete.FileName, "delete", m.delete.Query); err != nil {
 		http.Error(w, err.Error(), 500)
 	} else {
@@ -94,6 +106,11 @@ func (m *MessDFSStorageAPI) readCSV(w http.ResponseWriter, r *http.Request) {
 	m.read.FileName = splittedPath[4]
 	m.read.Query = r.URL.Query()
 
+	if isTransactionOk := m.serviceConn.CheckTransactionOwner(m.read.TransactionUser, m.read.User); !isTransactionOk {
+		writer(w, map[string]string{"err": "Transaction Not Allowed"})
+		return
+	}
+
 	fmt.Printf("%s - %s - %s \n", m.read.User, m.read.FileName, m.read.Query)
 
 	response, err := m.ReadInRemoteCSV(m.read.User, m.read.FileName, "read", m.read.Query)
@@ -108,6 +125,11 @@ func (m *MessDFSStorageAPI) updateCSV(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	body, _ := io.ReadAll(r.Body)
 	json.Unmarshal(body, &m.update)
+
+	if isTransactionOk := m.serviceConn.CheckTransactionOwner(m.update.TransactionUser, m.update.User); !isTransactionOk {
+		writer(w, map[string]string{"err": "Transaction Not Allowed"})
+		return
+	}
 
 	if err := m.UpdateRemoteCSV(m.update.User, m.update.FileName, m.update.QueryType, m.update.QueryContent); err != nil {
 		http.Error(w, err.Error(), 500)
@@ -124,6 +146,11 @@ func (m *MessDFSStorageAPI) createDirectory(w http.ResponseWriter, r *http.Reque
 	defer r.Body.Close()
 	body, _ := io.ReadAll(r.Body)
 	json.Unmarshal(body, &m.createDir)
+
+	if isTransactionOk := m.serviceConn.CheckTransactionOwner(m.createDir.TransactionUser, m.createDir.DirToCreate); !isTransactionOk {
+		writer(w, map[string]string{"err": "Transaction Not Allowed"})
+		return
+	}
 
 	if err := m.CreateNewDir(m.createDir.DirToCreate); err != nil {
 		http.Error(w, err.Error(), 500)
@@ -142,6 +169,11 @@ func (m *MessDFSStorageAPI) deleteDirectory(w http.ResponseWriter, r *http.Reque
 	m.deleteDir.TransactionUser = splittedPath[2]
 	m.deleteDir.DirToDelete = splittedPath[3]
 
+	if isTransactionOk := m.serviceConn.CheckTransactionOwner(m.deleteDir.TransactionUser, m.deleteDir.DirToDelete); !isTransactionOk {
+		writer(w, map[string]string{"err": "Transaction Not Allowed"})
+		return
+	}
+
 	if err := m.DeleteDir(m.deleteDir.DirToDelete); err != nil {
 		http.Error(w, err.Error(), 500)
 	} else {
@@ -159,6 +191,11 @@ func (m *MessDFSStorageAPI) deleteFile(w http.ResponseWriter, r *http.Request) {
 	m.deleteFile.TransactionUser = splittedPath[2]
 	m.deleteF.DirName = splittedPath[3]
 	m.deleteF.FileToDelete = splittedPath[4]
+
+	if isTransactionOk := m.serviceConn.CheckTransactionOwner(m.deleteFile.TransactionUser, m.deleteFile.DirName); !isTransactionOk {
+		writer(w, map[string]string{"err": "Transaction Not Allowed"})
+		return
+	}
 
 	if err := m.DeleteFile(m.deleteF.DirName, m.deleteF.FileToDelete); err != nil {
 		http.Error(w, err.Error(), 500)
