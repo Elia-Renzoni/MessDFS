@@ -29,7 +29,7 @@ func NewStorage(address string) *MessDFSStorageAPI {
 	return &MessDFSStorageAPI{
 		address:       address,
 		jwtMiddleware: middleware.NewMiddleware(),
-		serviceConn: NewAuthServiceTrigger(),
+		serviceConn:   NewAuthServiceTrigger(),
 	}
 }
 
@@ -83,7 +83,7 @@ func (m *MessDFSStorageAPI) deleteCSV(w http.ResponseWriter, r *http.Request) {
 
 	if isTransactionOk := m.serviceConn.CheckTransactionOwner(m.delete.TransactionUser, m.delete.User); !isTransactionOk {
 		writer(w, map[string]string{"err": "Transaction Not Allowed"})
-		return 
+		return
 	}
 
 	if err := m.DeleteRemoteCSV(m.delete.User, m.delete.FileName, "delete", m.delete.Query); err != nil {
