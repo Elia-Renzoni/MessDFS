@@ -4,7 +4,8 @@
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import sys
-#import psycopg2
+import psycopg2
+import json
 from urllib.parse import urlparse, parse_qs
 
 class Router(BaseHTTPRequestHandler):
@@ -52,9 +53,15 @@ class Router(BaseHTTPRequestHandler):
     
     def login(self):
         print("login", file=sys.stdout)
-        # http:127.0.0.1/login?username=pippo&password="bar"    
-        print(self.path, file=sys.stdout)
-        self.wfile.write(b"Login endpoint reached")
+        parsed_url = urlparse(self.path)
+        parsed_query = parse_qs(parsed_url.query)
+        username = parsed_query.get("username")
+        password = parsed_query.get("password")
+        result = self.connect_db("SELECT username, password FROM users WHERE username = %s AND password = %s", (username, password))
+        if len(result) == 0:
+            self.send_response(400)
+        else:
+            self.send_response(200)
     
     def signup(self):
         print("signup", file=sys.stdout)
@@ -69,6 +76,7 @@ class Router(BaseHTTPRequestHandler):
         self.send_header("Content-Type", "text/plain")
         self.end_headers()
         self.wfile.write(b"Signout endpoint reached")
+
     def add_friend(self):
         print("add-friend", file=sys.stdout)
     
@@ -78,22 +86,78 @@ class Router(BaseHTTPRequestHandler):
 
     def check_friendship(self): 
         print("i'm checking the friendship", file=sys.stdout)    
+        #http://127.0.0.1/friendship?txn=foo&dir=bar
+        parsed_url = urlparse(self.path)
+        parsed_query = parse_qs(parsed_url.query)
+        txn = parsed_query.get("txn")
+        directory = parsed_query.get("dir")
+        result = self.connect_db("SELECT username, friend FROM friends WHERE username = %s AND friend = %s", (txn, directory))
+        if len(result) == 0:
+            response = {
+                "result": False,
+            }
+            self.send_response(400)
+            self.wfile.write(json.dumps(response))
+        else: 
+            response = {
+                "result": True,
+            }
+            self.send_response(200)
+            self.wfile.write(json.dumps(response))
     
     def get_directories(self):
-        pass
+        #http://127.0.0.1/directories?username=foo
+        parsed_url = urlparse(self.path)
+        parsed_query = parse_qs(parsed_url.query)
+        username = parsed_query.get("username")
+        result = self.connect_db("SELECT directory FROM directories WHERE username=%s", username)
+        if len(result) == 0:
+            self.send_response(400)
+        else:
+            resp = {
+                "directories": result,
+            }
+            self.send_response(200)
+            self.wfile.write(json.dumps(resp))
     
     def get_friends(self): 
-        pass
+        #http://127.0.0.1?friends?username=foo
+        parsed_url = urlparse(self.path)
+        parsed_query = parse_qs(parsed_url.query)
+        username = parsed_query.get("username")
+        result = self.connect_db("SELECT friend FROM friends WHERE username=%s", username)
+        if len(result) == 0:
+            self.send_response(400)
+        else: 
+            respo = {
+                "friends": result,
+            }
+            self.send_response(200)
+            self.wfile.write(json.dumps(respo))
+
 
     def search_buddy(self):
-        pass
+        #http://127.0.0.1/search_friend?username=foo
+        parsed_url = urlparse(self.path)
+        parsed_query = parse_qs(parsed_url.query)
+        username = parsed_query.get("username")
+        result = self.connect_db("SELECT username FROM users WHERE username=%s", username)
+        if len(result) == 0:
+            self.send_response(404)
+        else: 
+            response = {
+                "user": result,
+            }
+            self.send_response(200)
+            self.wfile.write(json.dumps(response))
 
     def write_bad_request(self):
         self.send_response(400)
         self.wfile.write(b"You Wrote a Bad Request Buddy!")
     
-    def connect_db(self, sql_statement):
+    def connect_db(self, sql_statement, values):
         connection = None
+        sql_results = None
         try:
             connection = psycopg2.connect(
                 dbname="messdfs",
@@ -103,9 +167,10 @@ class Router(BaseHTTPRequestHandler):
             )
 
             cursor_obj = connection.cursor()
-            cursor_obj.execute(sql_statement)
+            cursor_obj.execute(sql_statement, values)
             sql_results = cursor_obj.fetchall()
         except: 
             print('Occured Some Errors')
         finally:
             connection.close()
+        return sql_results
