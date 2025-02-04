@@ -18,7 +18,8 @@ class Router(BaseHTTPRequestHandler):
         self.end_headers()
     
     def do_POST(self):
-        match self.path:
+        parsed = urlparse(self.path)
+        match parsed:
             case "/signup":
                 self.signup()
             case "/add-friend":
@@ -29,7 +30,9 @@ class Router(BaseHTTPRequestHandler):
                 self.write_bad_request()
     
     def do_GET(self):
-        match self.path:
+        parsed = urlparse(self.path)
+        print(parsed.path)
+        match parsed.path:
             case "/login": 
                 self.login()
             case "/friendship": 
@@ -44,7 +47,8 @@ class Router(BaseHTTPRequestHandler):
                 self.write_bad_request()
     
     def do_DELETE(self):
-        match self.path:
+        parsed = urlparse(self.path)
+        match parsed:
             case "/signout": 
                 self.signout()
             case _: 
