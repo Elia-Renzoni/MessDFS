@@ -79,9 +79,32 @@ class Router(BaseHTTPRequestHandler):
 
     def add_friend(self):
         print("add-friend", file=sys.stdout)
+        content_length = int(self.headers['Content-Length'])
+        body = self.rfile.read(content_length)
+        deser_data = json.loads(body.decode('UTF-8'))
+        username = deser_data["username"]
+        friend_name = deser_data["friend_username"]
+
+        result = self.connect_db("INSERT INTO friends (username, friend) VALUES (%s, %s)", (username, friend_name))
+        if len(result) != 0: 
+            self.send_response(400)
+        else: 
+            self.send_response(201)
+        
     
     def add_directory(self):
         print("add-directory", file=sys.stdout)
+        content_length = int(self.headers['Content-Length'])
+        body = self.rfile.read(content_length)
+        deser_data_add_directory = json.loads(body.decode('utf-8'))
+        username = deser_data_add_directory["username"]
+        directory_name = deser_data_add_directory["directory"]
+
+        result = self.connect_db("INSERT INTO directories (username, directory) VALUES (%s, %s);", (username, directory_name))
+        if len(result) != 0: 
+            self.send_response(400)
+        else: 
+            self.send_response(201)        
 
 
     def check_friendship(self): 
