@@ -188,11 +188,11 @@ func (m *MessDFSStorageAPI) deleteDirectory(w http.ResponseWriter, r *http.Reque
 func (m *MessDFSStorageAPI) deleteFile(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path
 	splittedPath := strings.Split(path, "/")
-	m.deleteFile.TransactionUser = splittedPath[2]
+	m.deleteF.TransactionUser = splittedPath[2]
 	m.deleteF.DirName = splittedPath[3]
 	m.deleteF.FileToDelete = splittedPath[4]
 
-	if isTransactionOk := m.serviceConn.CheckTransactionOwner(m.deleteFile.TransactionUser, m.deleteFile.DirName); !isTransactionOk {
+	if isTransactionOk := m.serviceConn.CheckTransactionOwner(m.deleteF.TransactionUser, m.deleteF.DirName); !isTransactionOk {
 		writer(w, map[string]string{"err": "Transaction Not Allowed"})
 		return
 	}
