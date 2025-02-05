@@ -5,6 +5,7 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import sys
 import psycopg2
+from psycopg2 import Error
 import json
 from urllib.parse import urlparse, parse_qs
 
@@ -61,11 +62,12 @@ class Router(BaseHTTPRequestHandler):
         parsed_query = parse_qs(parsed_url.query)
         username = parsed_query.get("username")
         password = parsed_query.get("password")
-        result = self.connect_db("SELECT username, password FROM users WHERE username = %s AND password = %s", (username, password))
+        result = self.connect_db("SELECT username, password FROM users WHERE username = '%s' AND password = '%s'" % (username.pop(), password.pop()))
         if len(result) == 0:
             self.send_response(400)
         else:
             self.send_response(200)
+        self.end_headers()
     
     def signup(self):
         print("signup", file=sys.stdout)
@@ -89,7 +91,7 @@ class Router(BaseHTTPRequestHandler):
         username = deser_data["username"]
         friend_name = deser_data["friend_username"]
 
-        result = self.connect_db("INSERT INTO friends (username, friend) VALUES (%s, %s)", (username, friend_name))
+        result = self.connect_db("INSERT INTO friends (username, friend) VALUES ('%s', '%s')" % (username.pop(), friend_name.pop()))
         if len(result) != 0: 
             self.send_response(400)
         else: 
@@ -104,13 +106,16 @@ class Router(BaseHTTPRequestHandler):
         username = deser_data_add_directory["username"]
         directory_name = deser_data_add_directory["directory"]
 
-        result = self.connect_db("INSERT INTO directories (username, directory) VALUES (%s, %s);", (username, directory_name))
+        result = self.connect_db("INSERT INTO directories (username, directory) VALUES ('%s', '%s');" % (username.pop(), directory_name.pop()))
         if len(result) != 0: 
             self.send_response(400)
         else: 
             self.send_response(201)        
 
 
+    ''''
+        TODO -> la query è sbagliata
+    '''
     def check_friendship(self): 
         print("i'm checking the friendship", file=sys.stdout)    
         #http://127.0.0.1/friendship?txn=foo&dir=bar
@@ -118,86 +123,93 @@ class Router(BaseHTTPRequestHandler):
         parsed_query = parse_qs(parsed_url.query)
         txn = parsed_query.get("txn")
         directory = parsed_query.get("dir")
-        result = self.connect_db("SELECT username, friend FROM friends WHERE username = %s AND friend = %s", (txn, directory))
+        result = self.connect_db("SELECT username, friend FROM friends WHERE username = '%s' AND friend = '%s'" % (txn.pop(), directory.pop()))
         if len(result) == 0:
-            response = {
-                "result": False,
-            }
             self.send_response(400)
-            self.wfile.write(json.dumps(response))
+            self.end_headers()
         else: 
-            response = {
-                "result": True,
-            }
             self.send_response(200)
-            self.wfile.write(json.dumps(response))
+            self.end_headers()
     
     def get_directories(self):
         #http://127.0.0.1/directories?username=foo
         parsed_url = urlparse(self.path)
         parsed_query = parse_qs(parsed_url.query)
         username = parsed_query.get("username")
-        result = self.connect_db("SELECT directory FROM directories WHERE username=%s", username)
+        result = self.connect_db("SELECT directory FROM directories WHERE username='%s'" % username.pop())
         if len(result) == 0:
             self.send_response(400)
+            self.end_headers()
         else:
             resp = {
                 "directories": result,
             }
             self.send_response(200)
-            self.wfile.write(json.dumps(resp))
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps(resp).encode())
     
     def get_friends(self): 
         #http://127.0.0.1?friends?username=foo
         parsed_url = urlparse(self.path)
         parsed_query = parse_qs(parsed_url.query)
         username = parsed_query.get("username")
-        result = self.connect_db("SELECT friend FROM friends WHERE username=%s", username)
+        result = self.connect_db("SELECT friend FROM friends WHERE username='%s'" % username.pop())
         if len(result) == 0:
             self.send_response(400)
+            self.end_headers()
         else: 
             respo = {
                 "friends": result,
             }
             self.send_response(200)
-            self.wfile.write(json.dumps(respo))
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps(respo).encode())
 
 
+    ''''
+        TODO -> La query dovrebbe ritornare più valori quindi
+        anche le directory e gli amici
+    '''
     def search_buddy(self):
         #http://127.0.0.1/search_friend?username=foo
         parsed_url = urlparse(self.path)
         parsed_query = parse_qs(parsed_url.query)
         username = parsed_query.get("username")
-        result = self.connect_db("SELECT username FROM users WHERE username=%s", username)
+        result = self.connect_db("SELECT username FROM users WHERE username='%s'" % username.pop())
         if len(result) == 0:
             self.send_response(404)
+            self.end_headers()
         else: 
             response = {
                 "user": result,
             }
             self.send_response(200)
-            self.wfile.write(json.dumps(response))
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps(response).encode())
 
     def write_bad_request(self):
         self.send_response(400)
         self.wfile.write(b"You Wrote a Bad Request Buddy!")
     
-    def connect_db(self, sql_statement, values):
-        connection = None
+    def connect_db(self, sql_statement):
         sql_results = None
         try:
             connection = psycopg2.connect(
                 dbname="messdfs",
-                user="elia",
+                user="postgres",
                 password="elia",
                 host="localhost"
             )
 
             cursor_obj = connection.cursor()
-            cursor_obj.execute(sql_statement, values)
+            cursor_obj.execute(sql_statement)
             sql_results = cursor_obj.fetchall()
-        except: 
-            print('Occured Some Errors')
-        finally:
             connection.close()
+        except (Exception, Error) as error: 
+            print('Occured Some Errors ', error)
+
+        print(sql_results)
         return sql_results
