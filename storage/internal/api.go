@@ -11,11 +11,14 @@ import (
 )
 
 type MessDFSStorageAPI struct {
+	// IP address + listen port
 	address       string
-	jwtMiddleware *middleware.Middleware
+	
+	// embedded structure
 	ResourceController
 	serviceConn *AuthServiceTrigger
 
+	// data plane structures
 	createDir model.CreateDirPayload
 	deleteDir model.DeleteDirPayload
 	deleteF   model.DeleteFilePayload
@@ -172,6 +175,11 @@ func (m *MessDFSStorageAPI) deleteDirectory(w http.ResponseWriter, r *http.Reque
 
 	if isTransactionOk := m.serviceConn.CheckTransactionOwner(m.deleteDir.TransactionUser, m.deleteDir.DirToDelete); !isTransactionOk {
 		writer(w, map[string]string{"err": "Transaction Not Allowed"})
+		return
+	}
+
+	if okDelete := m.serviceConn.DeleteDirectoryInAuth(m.deleteDir.DirToDelete); !okDelete {
+		http.Error(w, "Operation Not Allowed", 500)
 		return
 	}
 
