@@ -33,6 +33,8 @@ class Router(BaseHTTPRequestHandler):
             case "/login": 
                 self.login()
             case "/ownership": 
+                self.check_ownership()
+            case "/friendship":
                 self.check_friendship()
             case "/directories": 
                 self.get_directories()
@@ -116,6 +118,22 @@ class Router(BaseHTTPRequestHandler):
         else: 
             self.send_response(201)
             self.end_headers()        
+
+
+    
+    def check_friendship(self):
+        parsed_url = urlparse(self.path)
+        parsed_query = parse_qs(parsed_url.query)
+        txn = parsed_query.get("txn")
+        friend = parsed_query.get("friend")
+
+        check_friend = self.connect_db("SELECT username, friend FROM friends WHERE username = '%s' AND friend = '%s'" % (txn.pop(), friend.pop()))
+        if len(check_friend) == 0:
+            self.send_response(400)
+            self.end_headers()
+        else:
+            self.send_response(200)
+            self.end_headers()
 
 
     def check_ownership(self): 
