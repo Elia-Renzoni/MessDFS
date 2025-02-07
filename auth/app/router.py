@@ -32,7 +32,7 @@ class Router(BaseHTTPRequestHandler):
         match parsed.path:
             case "/login": 
                 self.login()
-            case "/friendship": 
+            case "/ownership": 
                 self.check_friendship()
             case "/directories": 
                 self.get_directories()
@@ -108,18 +108,17 @@ class Router(BaseHTTPRequestHandler):
             self.end_headers()        
 
 
-    ''''
-        TODO -> la query è sbagliata
-    '''
-    def check_friendship(self): 
-        print("i'm checking the friendship", file=sys.stdout)    
+    def check_ownership(self): 
+        print("i'm checking the ownership", file=sys.stdout)    
         #http://127.0.0.1/friendship?txn=foo&dir=bar
         parsed_url = urlparse(self.path)
         parsed_query = parse_qs(parsed_url.query)
         txn = parsed_query.get("txn")
         directory = parsed_query.get("dir")
-        result = self.connect_db("SELECT username, friend FROM friends WHERE username = '%s' AND friend = '%s'" % (txn.pop(), directory.pop()), READ)
-        if len(result) == 0:
+        
+        check_directory_result = self.connect_db("SELECT username FROM directories WHERE directory = '%s'" % (directory.pop()))
+        owner_name = check_directory_result[0]
+        if owner_name == txn.pop():
             self.send_response(400)
             self.end_headers()
         else: 
@@ -163,10 +162,6 @@ class Router(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps(respo).encode())
 
 
-    ''''
-        TODO -> La query dovrebbe ritornare più valori quindi
-        anche le directory e gli amici
-    '''
     def search_buddy(self):
         #http://127.0.0.1/search_friend?username=foo
         parsed_url = urlparse(self.path)

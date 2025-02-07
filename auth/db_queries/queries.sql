@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS friends (
 CREATE TABLE IF NOT EXISTS directories (
     user_dirs_id SERIAL PRIMARY KEY,
     username VARCHAR(255) NOT NULL,
-    directory VARCHAR(255) NOT NULL,
+    directory VARCHAR(255) NOT NULL UNIQUE,
     CONSTRAINT fk_users FOREIGN KEY(username) REFERENCES users(username) ON DELETE SET NULL
 );
 
