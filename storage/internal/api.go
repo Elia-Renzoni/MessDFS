@@ -102,11 +102,12 @@ func (m *MessDFSStorageAPI) readCSV(w http.ResponseWriter, r *http.Request) {
 	splittedPath := strings.Split(path, "/")
 
 	m.read.TransactionUser = splittedPath[2]
-	m.read.User = splittedPath[3]
-	m.read.FileName = splittedPath[4]
+	m.read.Friend = splittedPath[3]
+	m.read.User = splittedPath[4]
+	m.read.FileName = splittedPath[5]
 	m.read.Query = r.URL.Query()
 
-	if isTransactionOk := m.serviceConn.CheckTransactionOwner(m.read.TransactionUser, m.read.User); !isTransactionOk {
+	if isTransactionOk := m.serviceConn.CheckFriendship(m.read.TransactionUser, m.read.Friend); !isTransactionOk {
 		writer(w, map[string]string{"err": "Transaction Not Allowed"})
 		return
 	}

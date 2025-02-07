@@ -8,25 +8,17 @@ import (
 )
 
 type AuthServiceTrigger struct {
-	result QueryResult
 }
 
-type QueryResult struct {
-	Ack bool `json:"result"`
-}
 
 func NewAuthServiceTrigger() *AuthServiceTrigger {
 	return &AuthServiceTrigger{}
 }
 
-// check the friendship between the owner of the transaction and the owner of the directory
+// check the ownership between the owner of the transaction and the owner of the directory
 // involved
 func (a *AuthServiceTrigger) CheckTransactionOwner(txnUser string, directoryInvolved string) bool {
-	if txnUser == directoryInvolved {
-		return true
-	}
-
-	var partialUrl string = "http://127.0.0.1:8082/friendship?"
+	var partialUrl string = "http://127.0.0.1:8083/ownership?"
 	var urlQuery url.Values
 	urlQuery.Add("txn", txnUser)
 	urlQuery.Add("dir", directoryInvolved)
@@ -37,10 +29,26 @@ func (a *AuthServiceTrigger) CheckTransactionOwner(txnUser string, directoryInvo
 		return false
 	}
 
-	body, _ := io.ReadAll(res.Body)
-	json.Unmarshal(body, &a.result)
+	if res.StatusCode == http.StatusOK {
+		return true
+	}
 
-	if a.result.Ack {
+	return false
+}
+
+func (a *AuthServiceTrigger) CheckFriendship(txnUser string, friend string) bool {
+	var partialAuthURL string = "http://127.0.0.1:8083/friendship?"
+	var urlQueryFriendship url.Values
+	urlQueryFriendship.Add("txn", txnUser)
+	urlQueryFriendship.Add("friend", friend)
+	var completeUrlFriendship string = partialAuthURL + urlQueryFriendship.Encode()
+
+	res, err := http.Get(completeUrlFriendship)
+	if err != nil {
+		return false
+	}
+
+	if res.StatusCode == http.StatusOK {
 		return true
 	}
 
