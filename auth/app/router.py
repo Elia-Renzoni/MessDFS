@@ -186,8 +186,14 @@ class Router(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps(response).encode())
 
     def write_bad_request(self):
+        badResponse = {
+            "bad": "You Wrote a Bad Request Buddy!",
+        }
+
         self.send_response(400)
-        self.wfile.write(b"You Wrote a Bad Request Buddy!")
+        self.send_header('Content-Type', 'application/json')
+        self.end_headers()
+        self.wfile.write(json.dumps(badResponse).encode())
     
     def connect_db(self, sql_statement, opcode):
         sql_results = None
