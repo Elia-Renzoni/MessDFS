@@ -34,3 +34,8 @@ INSERT INTO users (username, password) VALUES ('paul foo', '1234paulfoo');
 INSERT INTO friends (username, friend) VALUES ('paul foo', 'erika bar');
 
 INSERT INTO directories (username, directory) VALUES ('elia renzoni', 'js');
+
+/* deletes */
+DELETE FROM directories WHERE directory = 'foo';
+
+DELETE FROM friends WHERE friend = 'bar';
