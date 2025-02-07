@@ -43,6 +43,16 @@ class Router(BaseHTTPRequestHandler):
             case _: 
                 self.write_bad_request()
     
+    def do_DELETE(self): 
+        parsed = urlparse(self.path)
+        match parsed.path:
+            case "/delete-dir":
+                self.delete_directory()
+            case "/delete-friend":
+                self.delete_friend()
+            case _:
+                self.write_bad_request()
+    
     def login(self):
         print("login", file=sys.stdout)
         parsed_url = urlparse(self.path)
@@ -179,6 +189,12 @@ class Router(BaseHTTPRequestHandler):
             self.send_header('Content-Type', 'application/json')
             self.end_headers()
             self.wfile.write(json.dumps(response).encode())
+    
+    def delete_directory(self):
+        pass
+
+    def delete_friend(self):
+        pass
 
     def write_bad_request(self):
         badResponse = {
