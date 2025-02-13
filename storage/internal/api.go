@@ -31,7 +31,6 @@ type MessDFSStorageAPI struct {
 func NewStorage(address string) *MessDFSStorageAPI {
 	return &MessDFSStorageAPI{
 		address:       address,
-		jwtMiddleware: middleware.NewMiddleware(),
 		serviceConn:   NewAuthServiceTrigger(),
 	}
 }
