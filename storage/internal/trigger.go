@@ -1,8 +1,6 @@
 package internal
 
 import (
-	"encoding/json"
-	"io"
 	"net/http"
 	"net/url"
 )
@@ -64,7 +62,7 @@ func (a *AuthServiceTrigger) DeleteDirectoryInAuth(dirname string) bool {
 	var urlQuery url.Values
 
 	urlQuery.Add("directory", dirname)
-	var completeDeleteUrl string = partialAuthURL * urlQuery.Encode()
+	var completeDeleteUrl string = partialAuthURL + urlQuery.Encode()
 
 	res, err := http.Get(completeDeleteUrl)
 	if err != nil {

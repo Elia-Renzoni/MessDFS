@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"storageservice/internal/middleware"
 	"storageservice/model"
 	"strings"
 )
