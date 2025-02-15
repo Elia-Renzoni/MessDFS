@@ -11,8 +11,8 @@ import (
 
 type MessDFSStorageAPI struct {
 	// IP address + listen port
-	address       string
-	
+	address string
+
 	// embedded structure
 	ResourceController
 	serviceConn *AuthServiceTrigger
@@ -29,8 +29,8 @@ type MessDFSStorageAPI struct {
 
 func NewStorage(address string) *MessDFSStorageAPI {
 	return &MessDFSStorageAPI{
-		address:       address,
-		serviceConn:   NewAuthServiceTrigger(),
+		address:     address,
+		serviceConn: NewAuthServiceTrigger(),
 	}
 }
 
@@ -56,7 +56,7 @@ func (m *MessDFSStorageAPI) insertCSV(w http.ResponseWriter, r *http.Request) {
 	json.Unmarshal(body, &m.insert)
 
 	if isTransactionOk := m.serviceConn.CheckTransactionOwner(m.insert.TransactionUser, m.insert.User); !isTransactionOk {
-		writer(w, map[string]string{"err": "Transaction Not Allowed"})
+		writer(w, map[string]string{"err": "Transaction Not Allowed"}, 400)
 		return
 	}
 
@@ -69,7 +69,7 @@ func (m *MessDFSStorageAPI) insertCSV(w http.ResponseWriter, r *http.Request) {
 			"success": "Informations Added Succesfully",
 		}
 
-		writer(w, message)
+		writer(w, message, 201)
 	}
 }
 
@@ -83,7 +83,7 @@ func (m *MessDFSStorageAPI) deleteCSV(w http.ResponseWriter, r *http.Request) {
 	m.delete.Query = r.URL.Query()
 
 	if isTransactionOk := m.serviceConn.CheckTransactionOwner(m.delete.TransactionUser, m.delete.User); !isTransactionOk {
-		writer(w, map[string]string{"err": "Transaction Not Allowed"})
+		writer(w, map[string]string{"err": "Transaction Not Allowed"}, 400)
 		return
 	}
 
@@ -94,7 +94,7 @@ func (m *MessDFSStorageAPI) deleteCSV(w http.ResponseWriter, r *http.Request) {
 			"success": "Informations Succesfully Removed",
 		}
 
-		writer(w, message)
+		writer(w, message, 200)
 	}
 }
 
@@ -109,7 +109,7 @@ func (m *MessDFSStorageAPI) readCSV(w http.ResponseWriter, r *http.Request) {
 	m.read.Query = r.URL.Query()
 
 	if isTransactionOk := m.serviceConn.CheckFriendship(m.read.TransactionUser, m.read.Friend); !isTransactionOk {
-		writer(w, map[string]string{"err": "Transaction Not Allowed"})
+		writer(w, map[string]string{"err": "Transaction Not Allowed"}, 400)
 		return
 	}
 
@@ -119,7 +119,7 @@ func (m *MessDFSStorageAPI) readCSV(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 	} else {
-		writer(w, response)
+		writer(w, response, 200)
 	}
 }
 
@@ -129,7 +129,7 @@ func (m *MessDFSStorageAPI) updateCSV(w http.ResponseWriter, r *http.Request) {
 	json.Unmarshal(body, &m.update)
 
 	if isTransactionOk := m.serviceConn.CheckTransactionOwner(m.update.TransactionUser, m.update.User); !isTransactionOk {
-		writer(w, map[string]string{"err": "Transaction Not Allowed"})
+		writer(w, map[string]string{"err": "Transaction Not Allowed"}, 400)
 		return
 	}
 
@@ -140,7 +140,7 @@ func (m *MessDFSStorageAPI) updateCSV(w http.ResponseWriter, r *http.Request) {
 			"success": "Informations Succesfully Updated",
 		}
 
-		writer(w, message)
+		writer(w, message, 201)
 	}
 }
 
@@ -149,8 +149,9 @@ func (m *MessDFSStorageAPI) createDirectory(w http.ResponseWriter, r *http.Reque
 	body, _ := io.ReadAll(r.Body)
 	json.Unmarshal(body, &m.createDir)
 
+	fmt.Printf("%s OK", m.createDir.TransactionUser)
 	if isTransactionOk := m.serviceConn.CheckTransactionOwner(m.createDir.TransactionUser, m.createDir.DirToCreate); !isTransactionOk {
-		writer(w, map[string]string{"err": "Transaction Not Allowed"})
+		writer(w, map[string]string{"err": "Transaction Not Allowed"}, 400)
 		return
 	}
 
@@ -161,7 +162,7 @@ func (m *MessDFSStorageAPI) createDirectory(w http.ResponseWriter, r *http.Reque
 			"success": "Directory Succesfully Created",
 		}
 
-		writer(w, message)
+		writer(w, message, 201)
 	}
 }
 
@@ -172,7 +173,7 @@ func (m *MessDFSStorageAPI) deleteDirectory(w http.ResponseWriter, r *http.Reque
 	m.deleteDir.DirToDelete = splittedPath[3]
 
 	if isTransactionOk := m.serviceConn.CheckTransactionOwner(m.deleteDir.TransactionUser, m.deleteDir.DirToDelete); !isTransactionOk {
-		writer(w, map[string]string{"err": "Transaction Not Allowed"})
+		writer(w, map[string]string{"err": "Transaction Not Allowed"}, 400)
 		return
 	}
 
@@ -188,7 +189,7 @@ func (m *MessDFSStorageAPI) deleteDirectory(w http.ResponseWriter, r *http.Reque
 			"success": "Directory Succesfully Deleted",
 		}
 
-		writer(w, message)
+		writer(w, message, 200)
 	}
 }
 
@@ -200,7 +201,7 @@ func (m *MessDFSStorageAPI) deleteFile(w http.ResponseWriter, r *http.Request) {
 	m.deleteF.FileToDelete = splittedPath[4]
 
 	if isTransactionOk := m.serviceConn.CheckTransactionOwner(m.deleteF.TransactionUser, m.deleteF.DirName); !isTransactionOk {
-		writer(w, map[string]string{"err": "Transaction Not Allowed"})
+		writer(w, map[string]string{"err": "Transaction Not Allowed"}, 400)
 		return
 	}
 
@@ -211,16 +212,16 @@ func (m *MessDFSStorageAPI) deleteFile(w http.ResponseWriter, r *http.Request) {
 			"success": "File Succesfully Deleted",
 		}
 
-		writer(w, message)
+		writer(w, message, 200)
 	}
 }
 
-func writer(w http.ResponseWriter, data map[string]string) {
+func writer(w http.ResponseWriter, data map[string]string, statusCode int) {
 	jsonData, _ := json.Marshal(data)
 
 	fmt.Println(data)
 
-	w.WriteHeader(http.StatusCreated)
+	w.WriteHeader(statusCode)
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(jsonData)
 }

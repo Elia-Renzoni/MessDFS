@@ -169,7 +169,8 @@ class Router(BaseHTTPRequestHandler):
         
         check_directory_result = self.connect_db("SELECT username FROM directories WHERE directory = '%s'" % (directory.pop()), READ)
         owner_name = check_directory_result[0]
-        if owner_name == txn.pop():
+        print(owner_name[0])
+        if owner_name[0] != txn.pop():
             self.send_response(400)
             self.end_headers()
         else: 
@@ -238,6 +239,7 @@ class Router(BaseHTTPRequestHandler):
         parsed_url = urlparse(self.path)
         parsed_query = parse_qs(parsed_url.query)
         directory_to_delete = parsed_query.get("directory")
+
 
         reuslt = self.connect_db("DELETE FROM directories WHERE directory = '%s'" % directory_to_delete.pop(), TO_COMMIT)
         if reuslt == None:
