@@ -11,6 +11,9 @@ There are two microservices: the first one controls the remote resources of each
 ## API
 ### Storage
 * <b>insert data into a csv file</b>
+```
+http://<IP address>:8081/csvi
+```
 ```json
 {
     "txn_user": "<transaction user>",
@@ -21,6 +24,9 @@ There are two microservices: the first one controls the remote resources of each
 }
 ```
 * <b>directory creation</b>
+```
+http://<IP address>:8081/ndir
+```
 ```json
 {
     "txn_user": "<transaction user>",
@@ -28,6 +34,9 @@ There are two microservices: the first one controls the remote resources of each
 }
 ```
 * <b>update csv file</b>
+```
+http://<IP address>:8081/csvu
+```
 ```json
 {
     "txn_user": "<transaction user>",
