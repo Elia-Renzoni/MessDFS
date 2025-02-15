@@ -10,14 +10,49 @@ There are two microservices: the first one controls the remote resources of each
 
 ## API
 ### Storage
-* <b>insert</b>
+* <b>insert data into a csv file</b>
 ```json
 {
     "txn_user": "<transaction user>",
     "query_type": "insert",
     "user": "<directory name>",
     "file_name": "<file name>",
-    "query_content": []
+    "query_content": ["<values>"]
 }
+```
+* <b>directory creation</b>
+```json
+{
+    "txn_user": "<transaction user>",
+    "dir_to_create": "<directory>"
+}
+```
+* <b>update csv file</b>
+```json
+{
+    "txn_user": "<transaction user>",
+    "query_type": "update",
+    "user_name": "<directory name>",
+    "file_name": "<file name>",
+    "query_content": {
+        "<column name>": ["id", "old data value", "new data value"]
+    }
+}
+```
+* <b>read data</b>
+```
+http://<IP address>:8081/csvr/{txn user}/{friend name}/{directory}/{file name}?id=<id value>
+```
+* <b>delete directory</b>
+```
+http://<IP address>:8081/ddir/{txn user}/{directory to delete}
+```
+* <b>delete file</b>
+```
+http://<IP address>:8081/dfile/{txn user}/{file to delete}/{directory}
+```
+* <b>delete data</b>
+```
+http://<IP address>:8081/csvd/{txn user}/{directory}/{file name}?id=<id value>
 ```
 
