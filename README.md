@@ -82,7 +82,7 @@ http://<IP address>:8083/add-friend
 ```json
 {
     "username": "<name>",
-    "friend_username": <"friend username">
+    "friend_username": "<friend username>"
 }
 ```
 * <b>add directory</b>
@@ -123,7 +123,7 @@ http://<IP address>:8083/directories?username=<name>
 ```
 http://<IP address>:8083/friends?username=<name>
 ```
-*<b>search users</b>
+* <b>search users</b>
 ```json
 http://<IP address>:8083/search-friend?username=<name>
 ```
