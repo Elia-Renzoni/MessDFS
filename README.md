@@ -64,4 +64,67 @@ http://<IP address>:8081/dfile/{txn user}/{file to delete}/{directory}
 ```
 http://<IP address>:8081/csvd/{txn user}/{directory}/{file name}?id=<id value>
 ```
+### Auth
+* <b>signup</b>
+```
+http://<IP address>:8083/signup
+```
+```json
+{
+    "username": "<name>",
+    "password": "<password>"
+}
+```
+* <b>add friend</b>
+```
+http://<IP address>:8083/add-friend
+```
+```json
+{
+    "username": "<name>",
+    "friend_username": <"friend username">
+}
+```
+* <b>add directory</b>
+```
+http://<IP address>:8083/add-directory
+```
+```json
+{
+    "username": "<name>",
+    "directory": "<directory>"
+}
+```
+* <b>delete directory</b>
+```
+http://<IP address>:8083/delete-dir?directory=<directory>
+```
+* <b>delete-friend</b>
+```
+http://<IP address>:8083/delete-friend?friend=<friend name>
+```
+* <b>login</b>
+```
+http://<IP address>:8083/login?username=<username>&password=<password>
+```
+* <b>check ownership</b>
+```
+http://<IP address>:8083/ownersship?txn=<username>&dir=<directory>
+```
+* <b>check friendship</b>
+```
+http://<IP address>:8083/friendship?txn=<name>&friend=<name>
+```
+* <b>get directories</b>
+```
+http://<IP address>:8083/directories?username=<name>
+```
+* <b>get friends</b>
+```
+http://<IP address>:8083/friends?username=<name>
+```
+*<b>search users</b>
+```json
+http://<IP address>:8083/search-friend?username=<name>
+```
 
