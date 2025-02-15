@@ -124,7 +124,7 @@ http://<IP address>:8083/directories?username=<name>
 http://<IP address>:8083/friends?username=<name>
 ```
 * <b>search users</b>
-```json
+```
 http://<IP address>:8083/search-friend?username=<name>
 ```
 
