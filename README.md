@@ -17,7 +17,7 @@ There are two microservices: the first one controls the remote resources of each
     "query_type": "insert",
     "user": "<directory name>",
     "file_name": "<file name>",
-    "query_content": [...]
+    "query_content": []
 }
 ```
 
